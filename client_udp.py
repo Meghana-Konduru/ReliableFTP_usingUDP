@@ -11,12 +11,12 @@ filename = input("Enter filename to download: ")
 
 client.sendto(filename.encode(), (SERVER_IP, SERVER_PORT))
 
-# receive encryption key
 key, _ = client.recvfrom(BUFFER_SIZE)
 
 cipher = Fernet(key)
 
-file = open("received_" + filename, "wb")
+success = True
+file = None   # file will open only if data is valid
 
 while True:
 
@@ -24,15 +24,27 @@ while True:
 
     data = cipher.decrypt(encrypted_data)
 
+    # check error first
+    if b"ERROR" in data:
+        print(data.decode())
+        success = False
+        break
+
+    # end of file
     if data == b"END":
         break
 
-    if b"ERROR" in data:
-        print(data.decode())
-        break
+    # open file only when actual data arrives
+    if file is None:
+        file = open("received_" + filename, "wb")
 
     file.write(data)
 
-file.close()
+# close file if opened
+if file:
+    file.close()
 
-print("Secure file received successfully")
+if success:
+    print("Secure file received successfully")
+else:
+    print("File transfer failed")
