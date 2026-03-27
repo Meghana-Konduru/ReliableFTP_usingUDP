@@ -11,28 +11,58 @@ filename = input("Enter filename to download: ")
 
 client.sendto(filename.encode(), (SERVER_IP, SERVER_PORT))
 
-# receive encryption key
 key, _ = client.recvfrom(BUFFER_SIZE)
-
 cipher = Fernet(key)
 
-file = open("received_" + filename, "wb")
+retry_count = 0
+max_retries = 2
 
 while True:
 
-    encrypted_data, _ = client.recvfrom(BUFFER_SIZE)
+    file = None        # file not created yet
+    success = True
 
-    data = cipher.decrypt(encrypted_data)
+    while True:
 
-    if data == b"END":
+        encrypted_data, _ = client.recvfrom(BUFFER_SIZE)
+
+        try:
+            data = cipher.decrypt(encrypted_data)
+        except:
+            success = False
+            break
+
+        # check error BEFORE creating file
+        if b"ERROR" in data:
+            print(data.decode())
+            success = False
+            break
+
+        # create file only when first real data comes
+        if file is None:
+            file = open("received_" + filename, "wb")
+
+        if data == b"END":
+            break
+
+        file.write(data)
+
+    # close file only if created
+    if file:
+        file.close()
+
+    if success:
+        client.sendto(b"SUCCESS", (SERVER_IP, SERVER_PORT))
+        print("Secure file received successfully")
         break
 
-    if b"ERROR" in data:
-        print(data.decode())
-        break
+    else:
+        retry_count += 1
 
-    file.write(data)
-
-file.close()
-
-print("Secure file received successfully")
+        if retry_count <= max_retries:
+            print("Retrying transfer...")
+            client.sendto(b"RETRY", (SERVER_IP, SERVER_PORT))
+        else:
+            client.sendto(b"FAILED", (SERVER_IP, SERVER_PORT))
+            print("File transfer failed")
+            break
