@@ -1,4 +1,5 @@
-Title: Reliable File Transfer protocol 
+Title: Reliable File Transfer protocol using UDP
+Team : Architha Sidharth Panicker , Ashmitha Sri Anand , Konduru Meghana
 
 ---------1️. Abstract---------
 
@@ -137,6 +138,26 @@ The project demonstrates implementation of transport-layer reliability mechanism
 
 ===== Setup Steps ======
 
+* Install Python 3.8+
+* Install dependency: `pip install cryptography`
+* Keep server.py and client.py in same folder
+* Place the file to send in server folder
+* Update server IP in client.py
+* Run server: `python server.py`
+* Run client (new terminal): `python client.py`
+* Enter filename to download
+* Received file saved as `received_filename`
+
 
 ====== Usage Instructions ======
+
+* Start the server: Run `python server.py`
+* Run the client on another terminal/system: Run `python client.py`
+* Enter the filename when prompted
+* Server encrypts and sends the file using UDP
+* Client decrypts and saves the file
+* Downloaded file will be saved as: `received_filename`
+* If packet loss or error occurs, the client automatically retries (max 2 times)
+* If the file does not exist, an error message is displayed
+
 
