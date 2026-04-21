@@ -1,5 +1,9 @@
 Title: Reliable File Transfer protocol using UDP
-Team : Architha Sidharth Panicker , Ashmitha Sri Anand , Konduru Meghana
+
+Team :-
+Architha Sidharth Panicker 
+Ashmitha Sri Anand 
+Konduru Meghana
 
 ---------1️. Abstract---------
 
